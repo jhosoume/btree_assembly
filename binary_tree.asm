@@ -24,63 +24,151 @@
 	space:		.asciiz " "
 	text: 		.asciiz "\nSize is "
 	size_tree: 	.word 0
+	input_node_val:	.asciiz "Enter value to be inserted into the tree: \n"
+	search_val_n:	.asciiz "Enter value of the node to be searched: \n"
 	num_searched:	.asciiz "The value of the node searched is: "
 	found_node:	.word 0
 	new_line:	.asciiz "\n"
 	prompt_func:	.asciiz "Enter number of the function to be performed: \n"
-	
-	
+	dfs_case:	.asciiz "DFS         -> (0)\n"
+	insert_case:	.asciiz "INSERT NODE -> (1)\n"
+	size_case:	.asciiz "GET SIZE    -> (2)\n"
+	search_case:	.asciiz "GET NODE    -> (3)\n"
+	exit_case:	.asciiz "EXIT        -> (4)\n"	
+	wrong_input:	.asciiz "Please, enter a valid input.\n"
 	
 .text
 .globl main
 main:
 	
-
-
-
+	getFunct:
 	
-	#la $a0, root
-	#jal size
-	#sw $v0, size_tree
-	
-	#la $a0, text
-	#li $v0, 4
-	#syscall
-	
-	#lw $a0, size_tree
-	#li $v0, 1
-	#syscall
-	
-	#la $a0, root
-	#li $a1, -2
-	#jal insertion
-	
-	#la $a0, root
-	#li $a1, 1
-	#jal search
-	#sw $v0, found_node
-	
-	#li $v0, 4
-	#la $a0, num_searched
-	#syscall
-	
-	#li $v0, 1
-	#lw $a0, found_node
-	#lw $a0, val($a0)
-	#syscall
-	
-	#li $v0, 4
-	#la $a0, new_line
-	#syscall
-	
-	
-
-	#la $a0, root
-	#jal dfs
-	
-			
-	li $v0, 10
+	la $a0, prompt_func
+	li $v0, 4
 	syscall
+	
+	la $a0, dfs_case
+	li $v0, 4
+	syscall
+	
+	la $a0, insert_case
+	li $v0, 4
+	syscall
+	
+	la $a0, size_case
+	li $v0, 4
+	syscall	
+
+	la $a0, search_case
+	li $v0, 4
+	syscall
+	
+	la $a0, exit_case
+	li $v0, 4
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $s0, $v0
+	
+	la $a0, new_line
+	li $v0, 4
+	syscall
+	
+	beq $s0, sDFS, exec_dfs
+	beq $s0, sINSERT, exec_insert
+	beq $s0, sSIZE, exec_size
+	beq $s0, sSEARCH, exec_search
+	beq $s0, sEXIT, exec_exit
+	
+	la $a0, wrong_input
+	li $v0, 4
+	syscall
+	j getFunct
+	
+	exec_dfs:
+		la $a0, root
+		jal dfs
+		
+		la $a0, new_line
+		li $v0, 4
+		syscall
+		
+		j getFunct
+	
+	exec_insert:
+		la $a0, input_node_val
+		li $v0, 4
+		syscall
+	
+		li $v0, 5
+		syscall
+		move $s1, $v0
+	
+		la $a0, new_line
+		li $v0, 4
+		syscall
+	
+		la $a0, root
+		move $a1, $s1
+		jal insertion
+		j getFunct
+	
+	exec_size:
+		la $a0, root
+		jal size
+		sw $v0, size_tree
+	
+		la $a0, text
+		li $v0, 4
+		syscall
+	
+		lw $a0, size_tree
+		li $v0, 1
+		syscall
+		
+		la $a0, new_line
+		li $v0, 4
+		syscall
+	
+		j getFunct
+	
+	exec_search:
+		la $a0, search_val_n
+		li $v0, 4
+		syscall
+	
+		li $v0, 5
+		syscall
+		move $s3, $v0
+	
+		la $a0, new_line
+		li $v0, 4
+		syscall
+	
+		la $a0, root
+		move $a1, $s3
+		jal search
+		sw $v0, found_node
+	
+		li $v0, 4
+		la $a0, num_searched
+		syscall
+	
+		li $v0, 1
+		lw $a0, found_node
+		lw $a0, val($a0)
+		syscall
+	
+		li $v0, 4
+		la $a0, new_line
+		syscall
+	
+		j getFunct
+	
+	exec_exit:
+		li $v0, 10
+		syscall	
 
 
 # $a1 receives node value
